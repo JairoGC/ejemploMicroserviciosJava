@@ -1,12 +1,17 @@
 package com.curso.jailux.serviciosweb.usuario;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
+
+import com.curso.jailux.serviciosweb.mensajes.Mensaje;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -26,6 +31,9 @@ public class Usuario {
 	@Past
 	@ApiModelProperty(notes = "La fecha de nacimiento no puede ser mayor a la fecha actual")
 	private Date fechaNacimiento;
+
+	@OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
+	private List<Mensaje> mensajes;
 	
 	protected Usuario() {
 		super();
@@ -57,6 +65,14 @@ public class Usuario {
 		this.fechaNacimiento = fechaNacimiento;
 	}
 	
+	public List<Mensaje> getMensajes() {
+		return mensajes;
+	}
+
+	public void setMensajes(List<Mensaje> mensajes) {
+		this.mensajes = mensajes;
+	}
+
 	@Override
 	public String toString() {
 		return "Usuario [id=" + id + ", nombre=" + nombre + ", fechaNacimiento=" + fechaNacimiento + "]";

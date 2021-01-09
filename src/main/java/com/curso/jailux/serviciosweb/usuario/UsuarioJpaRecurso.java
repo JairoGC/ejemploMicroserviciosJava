@@ -20,11 +20,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.curso.jailux.serviciosweb.mensajes.Mensaje;
+import com.curso.jailux.serviciosweb.mensajes.MensajeRepositorio;
+
 @RestController
 public class UsuarioJpaRecurso {
 
 	@Autowired
-	private UsuarioRespositorio usuarioRespositorio;
+	private UsuarioRepositorio usuarioRespositorio;
+	
+	@Autowired
+	private MensajeRepositorio mensajeRepositorio;
 
 	@GetMapping("/jpa/usuarios")
 	public List<Usuario> recuperarTodos() {
@@ -32,11 +38,11 @@ public class UsuarioJpaRecurso {
 	}
 
 	@GetMapping("/jpa/usuarios/{id}")
-	public EntityModel<Usuario> recuperar(@PathVariable int id) {
+	public EntityModel<Usuario> recuperarUno(@PathVariable int id) {
 		Optional<Usuario> usuario = usuarioRespositorio.findById(id);
 
 		if (!usuario.isPresent()) {
-			throw new EmptyResultDataAccessException("usuario no encontrado [id=" + id+"]",1);
+			throw this.getExceptionUsurioNoEncontrado(id);
 		}
 
 		EntityModel<Usuario> resource = EntityModel.of(usuario.get());
@@ -48,7 +54,11 @@ public class UsuarioJpaRecurso {
 
 	@DeleteMapping("/jpa/usuarios/{id}")
 	public void eliminar(@PathVariable int id) {
-		usuarioRespositorio.deleteById(id);
+		try {
+			usuarioRespositorio.deleteById(id);
+		}catch (EmptyResultDataAccessException e) {
+			throw this.getExceptionUsurioNoEncontrado(id);
+		}
 	}
 
 	@PostMapping("/jpa/usuarios")
@@ -57,6 +67,34 @@ public class UsuarioJpaRecurso {
 		URI localizacion = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
 				.buildAndExpand(usuarioGuardado.getId()).toUri();
 		return ResponseEntity.created(localizacion).build();
+	}
+	
+	@GetMapping("/jpa/usuarios/{id}/mensajes")
+	public List<Mensaje> recuperarMensajesDeUsuario(@PathVariable int id) {
+		Optional<Usuario> usuario = usuarioRespositorio.findById(id);
+		if (!usuario.isPresent()) {
+			throw this.getExceptionUsurioNoEncontrado(id);
+		}
+		return usuario.get().getMensajes();
+	}
+	
+	@PostMapping("/jpa/usuarios/{id}/mensajes")
+	public ResponseEntity<Object> crearMensajesDeUsuario(@PathVariable int id, @Valid @RequestBody Mensaje mensaje) {
+		Optional<Usuario> usuario = usuarioRespositorio.findById(id);
+		if (!usuario.isPresent()) {
+			throw this.getExceptionUsurioNoEncontrado(id);
+		}
+		
+		mensaje.setUsuario(usuario.get());
+		mensajeRepositorio.save(mensaje);
+		
+		URI localizacion = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+				.buildAndExpand(mensaje.getId()).toUri();
+		return ResponseEntity.created(localizacion).build();
+	}
+	
+	private EmptyResultDataAccessException getExceptionUsurioNoEncontrado(int id) {
+		return new EmptyResultDataAccessException("usuario no encontrado [id=" + id+"]",1);
 	}
 
 }

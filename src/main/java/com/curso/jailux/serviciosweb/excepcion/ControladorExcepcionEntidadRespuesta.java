@@ -32,7 +32,7 @@ public class ControladorExcepcionEntidadRespuesta extends ResponseEntityExceptio
 	}
 	@ExceptionHandler(EmptyResultDataAccessException.class)
 	public final ResponseEntity<Object> resultadoVacioDelAccesoData(EmptyResultDataAccessException ex, WebRequest request) {
-		ExcepcionRespuesta excepcionRespuesta = new ExcepcionRespuesta(new Date(), "Recurso no encontrado", request.getDescription(false));
+		ExcepcionRespuesta excepcionRespuesta = new ExcepcionRespuesta(new Date(), ex.getMessage(), request.getDescription(false));
 		return new ResponseEntity<Object>(excepcionRespuesta, HttpStatus.NOT_FOUND);
 	}
 	
