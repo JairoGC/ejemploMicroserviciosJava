@@ -2,6 +2,7 @@ package com.curso.jailux.serviciosweb.excepcion;
 
 import java.util.Date;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,12 @@ public class ControladorExcepcionEntidadRespuesta extends ResponseEntityExceptio
 		ExcepcionRespuesta excepcionRespuesta = new ExcepcionRespuesta(new Date(), ex.getMessage(), request.getDescription(false));
 		return new ResponseEntity<Object>(excepcionRespuesta, HttpStatus.NOT_FOUND);
 	}
-
+	@ExceptionHandler(EmptyResultDataAccessException.class)
+	public final ResponseEntity<Object> resultadoVacioDelAccesoData(EmptyResultDataAccessException ex, WebRequest request) {
+		ExcepcionRespuesta excepcionRespuesta = new ExcepcionRespuesta(new Date(), "Recurso no encontrado", request.getDescription(false));
+		return new ResponseEntity<Object>(excepcionRespuesta, HttpStatus.NOT_FOUND);
+	}
+	
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(
 			MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {

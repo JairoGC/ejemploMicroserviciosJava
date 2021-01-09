@@ -2,6 +2,9 @@ package com.curso.jailux.serviciosweb.usuario;
 
 import java.util.Date;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
 
@@ -9,8 +12,11 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description="Definicion de usuario")
+@Entity
 public class Usuario {
 	
+	@Id
+	@GeneratedValue
 	private Integer id;
 	
 	@Size(min=2, message = "El nombre debe tener mas de un caracter")
